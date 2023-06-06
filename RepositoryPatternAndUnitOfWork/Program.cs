@@ -5,13 +5,12 @@ using Microsoft.IdentityModel.Tokens;
 using RepositoryPatternAndUnitOfWork.Core.IConfiguration;
 using RepositoryPatternAndUnitOfWork.Data;
 using System.Text;
+using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(
     builder.Configuration.GetConnectionString("Defaults")));
-
-builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("JwtConfig"));
 
 //builder.Services.AddCors(options =>
 //{
@@ -29,7 +28,7 @@ builder.Services.AddSwaggerGen(
             Version = "v1"
         });
 
-        c.AddSecurityDefinition("BearerAuth", 
+        c.AddSecurityDefinition("Bearer", 
             new Microsoft.OpenApi.Models.OpenApiSecurityScheme
         {
             Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
@@ -45,6 +44,12 @@ builder.Services.AddSwaggerGen(
         
     });
 
+builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+    options.SignIn.RequireConfirmedAccount = false)
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -52,7 +57,8 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
     .AddJwtBearer(jwt => {
-        var key = Encoding.ASCII.GetBytes(builder.Configuration["JwtConfig:Secret"]);
+        var key = Encoding.UTF8.GetBytes(builder.Configuration
+            .GetSection("JwtConfig:Secret").Value!);
 
         var tokenValidationParams = new TokenValidationParameters
         {
@@ -61,19 +67,17 @@ builder.Services.AddAuthentication(options =>
             ValidateIssuer = false,
             ValidateAudience = false,
             ValidateLifetime = true,
-            RequireExpirationTime = false,
-            ClockSkew = TimeSpan.Zero,
+            //RequireExpirationTime = false,
+            //ClockSkew = TimeSpan.Zero,
         };
 
         jwt.SaveToken = true;
         jwt.TokenValidationParameters = tokenValidationParams;
     });
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => 
-    options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddAuthorization();
 
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 
 var app = builder.Build();
 

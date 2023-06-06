@@ -37,6 +37,7 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetItem(Guid id)
         {
             var user = await _unitOfWork.Users.GetByIdAsync(id);
@@ -47,8 +48,9 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
             return Ok(user);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet]
+        [Route("GetAll")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetALL()
         {
             var users = await _unitOfWork.Users.GetAllAsync();

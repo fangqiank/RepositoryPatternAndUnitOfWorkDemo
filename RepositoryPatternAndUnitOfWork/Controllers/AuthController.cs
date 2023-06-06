@@ -21,11 +21,9 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
             UserManager<IdentityUser> userManager,
             IConfiguration config
             ) 
-            //JwtConfig jwtConfig)
         {
             _userManager = userManager;
             _config = config;
-            //_jwtConfig = jwtConfig;
         }
 
         [HttpPost]
@@ -35,7 +33,7 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
         {
             if(ModelState.IsValid)
             {
-                var existedUser = await _userManager.FindByEmailAsync(userRegistrationDto.Email);
+                var existedUser = await _userManager.FindByEmailAsync(userRegistrationDto.Email!);
 
                 if(existedUser != null)
                 {
@@ -56,7 +54,7 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
                 };
 
                 var isCreated = await _userManager.CreateAsync(newUser, 
-                    userRegistrationDto.Password);
+                    userRegistrationDto.Password!);
 
                 if(isCreated.Succeeded)
                 {
@@ -96,7 +94,7 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
         {
             if (ModelState.IsValid)
             {
-                var existedUser = await _userManager.FindByEmailAsync(userLoginDto.Email);
+                var existedUser = await _userManager.FindByEmailAsync(userLoginDto.Email!);
 
                 if (existedUser == null)
                 {
@@ -110,11 +108,9 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
                     });
                 }
 
-                
-
                 var isCorrectPassword = await _userManager.CheckPasswordAsync(
                     existedUser, 
-                    userLoginDto.Password);
+                    userLoginDto.Password!);
 
                 if (!isCorrectPassword)
                 {
@@ -151,20 +147,22 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
 
-            var key = Encoding.UTF8.GetBytes(_config["JwtConfig:secret"]);
+            var secret = _config.GetSection("JwtConfig:Secret").Value;
+            var key = Encoding.UTF8.GetBytes(secret!);
 
             var tokenDescriptor = new SecurityTokenDescriptor()
             {
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim("Id", user.Id),
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Email!),
+                    new Claim(JwtRegisteredClaimNames.Email, user.Email!),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToUniversalTime().ToString())
+                    new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now
+                    .ToUniversalTime().ToString())
                 }),
 
-                Expires = DateTime.UtcNow.AddHours(1),
+                Expires = DateTime.Now.AddHours(1),
 
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key),
