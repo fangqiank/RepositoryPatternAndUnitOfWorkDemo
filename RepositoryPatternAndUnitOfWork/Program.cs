@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using RepositoryPatternAndUnitOfWork.Core.IConfiguration;
 using RepositoryPatternAndUnitOfWork.Data;
 using System.Text;
-using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,11 +44,21 @@ builder.Services.AddSwaggerGen(
         
     });
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options =>
-    options.SignIn.RequireConfirmedAccount = false)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
-
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+var key = Encoding.ASCII.GetBytes(builder.Configuration
+            .GetSection("JwtConfig:Secret").Value!);
+
+var tokenValidationParams = new TokenValidationParameters
+{
+    ValidateIssuerSigningKey = true,
+    IssuerSigningKey = new SymmetricSecurityKey(key),
+    ValidateIssuer = false,
+    ValidateAudience = false,
+    ValidateLifetime = true,
+    RequireExpirationTime = false,
+    //ClockSkew = TimeSpan.Zero,
+};
 
 builder.Services.AddAuthentication(options =>
 {
@@ -57,27 +67,15 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
     .AddJwtBearer(jwt => {
-        var key = Encoding.UTF8.GetBytes(builder.Configuration
-            .GetSection("JwtConfig:Secret").Value!);
-
-        var tokenValidationParams = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(key),
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateLifetime = true,
-            //RequireExpirationTime = false,
-            //ClockSkew = TimeSpan.Zero,
-        };
-
         jwt.SaveToken = true;
         jwt.TokenValidationParameters = tokenValidationParams;
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddSingleton(tokenValidationParams);
 
-
+builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+    options.SignIn.RequireConfirmedAccount = false)
+    .AddEntityFrameworkStores<ApplicationDbContext>();
 
 var app = builder.Build();
 

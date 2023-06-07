@@ -36,6 +36,16 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
 
         }
 
+        [HttpGet]
+        [Route("GetAll")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> GetALL()
+        {
+            var users = await _unitOfWork.Users.GetAllAsync();
+
+            return Ok(users);
+        }
+
         [HttpGet("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetItem(Guid id)
@@ -46,16 +56,6 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
                 return NotFound();
 
             return Ok(user);
-        }
-
-        [HttpGet]
-        [Route("GetAll")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> GetALL()
-        {
-            var users = await _unitOfWork.Users.GetAllAsync();
-
-            return Ok(users);
         }
 
         [HttpPost("{Id}")]
