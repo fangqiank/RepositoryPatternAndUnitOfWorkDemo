@@ -27,7 +27,7 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
             IConfiguration config,
             ApplicationDbContext db,
             TokenValidationParameters validationParameters
-            ) 
+            )
         {
             _userManager = userManager;
             _config = config;
@@ -40,11 +40,11 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
         public async Task<IActionResult> Register(
             [FromBody] UserRegistrationDto userRegistrationDto)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 var existedUser = await _userManager.FindByEmailAsync(userRegistrationDto.Email!);
 
-                if(existedUser != null)
+                if (existedUser != null)
                 {
                     return BadRequest(new AuthResult()
                     {
@@ -59,17 +59,38 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
                 var newUser = new IdentityUser()
                 {
                     Email = userRegistrationDto.Email,
-                    UserName = userRegistrationDto.Name
+                    UserName = userRegistrationDto.Name,
+                    EmailConfirmed = false
                 };
 
-                var isCreated = await _userManager.CreateAsync(newUser, 
+                var isCreated = await _userManager.CreateAsync(newUser,
                     userRegistrationDto.Password!);
 
-                if(isCreated.Succeeded)
+                if (isCreated.Succeeded)
                 {
-                    var token = await GenerateToken(newUser);
-                    
-                    return Ok(token);
+                    //var token = await GenerateToken(newUser);
+
+                    //return Ok(token);
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
+
+                    var email_body = "Please confirm your email address <a href=\"#URL#\">Click Here</a>";
+
+                    var callback_url = $"{Request.Scheme}://{Request.Host}{Url.Action(
+                            nameof(ConfirmEmail),
+                            "Auth",
+                            new {
+                                userId = newUser.Id,
+                                code = code
+                            })}";
+
+                    var body = email_body.Replace("#URL#",
+                        System.Text.Encodings.Web.HtmlEncoder.Default.Encode(callback_url));
+
+                    var result  = SendEmail(body, newUser.Email!);
+
+                    return result
+                        ? Ok("Please verify your email")
+                        : (IActionResult)Ok("Please request an email verfication link");
                 }
 
                 return BadRequest(new AuthResult()
@@ -113,8 +134,21 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
                     });
                 }
 
+                if (!existedUser.EmailConfirmed)
+                {
+                    return BadRequest(new AuthResult()
+                    {
+                        Result = false,
+                        Errors = new List<string>()
+                        {
+                            "Email is not confirmed"
+                        }
+                    });
+                }
+
+
                 var isCorrectPassword = await _userManager.CheckPasswordAsync(
-                    existedUser, 
+                    existedUser,
                     userLoginDto.Password!);
 
                 if (!isCorrectPassword)
@@ -148,11 +182,11 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
         [Route("RefreshToken")]
         public async Task<IActionResult> RefreshToken([FromBody] TokenRequest request)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 var result = await VerifyAndGenerateToken(request);
 
-                if(result == null)
+                if (result == null)
                 {
                     return BadRequest(new AuthResult
                     {
@@ -161,7 +195,7 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
                         {
                             "Invalid tokens"
                         }
-                    });    
+                    });
                 }
 
                 return Ok(result);
@@ -176,6 +210,39 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
                 }
             });
         }
+
+        [HttpGet]
+        [Route("ConfirmEmail")]
+        public async Task<IActionResult> ConfirmEmail(string userId, string code)
+        {
+            if(userId == null || code == null)
+                return BadRequest(new AuthResult
+                {
+                    Result = false,
+                    Errors = new List<string>
+                    {
+                        "Invalid confirmation email"
+                    }
+                });
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if(user == null)
+                return BadRequest(new AuthResult
+                {
+                    Result = false,
+                    Errors = new List<string>
+                    {
+                        "Invalid email parameters"
+                    }
+                });
+
+            //code = Encoding.UTF8.GetString(Convert.FromBase64String(code));
+            var result = await _userManager.ConfirmEmailAsync(user, code);
+            var status = result.Succeeded ? "Thank you" : "Your email is not confirmed";
+
+            return Ok(status);
+        }
+        
 
         private async Task<AuthResult> VerifyAndGenerateToken(TokenRequest tokenRequest)
         {
@@ -307,23 +374,24 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
 
         private bool SendEmail(string body, string email) 
         {
-            var option = new RestClientOptions("https//api.mailgun.net/v3")
+            var password = _config.GetSection("MailGun:ApiKey").Value;
+            var option = new RestClientOptions(
+                new Uri("https://api.mailgun.net/v3"))
             {
-                Authenticator = new HttpBasicAuthenticator("api", 
-                _config.GetSection("JwtConfig:ApiKey").Value!)
+                Authenticator = new HttpBasicAuthenticator("api", password!)
             };
 
             var client = new RestClient(option);
 
             var request = new RestRequest("", Method.Post);
-
-            request.AddParameter("domail", "");
+            request.AddParameter("domain", 
+                "sandbox6648c4e818dc4da792aaa817f04e7185.mailgun.org",
+                ParameterType.UrlSegment);
             request.Resource = "{domain}/messages";
-            request.AddParameter("from", "");
-            request.AddParameter("to", "zhangsan@mail.com");
+            request.AddParameter("from", "Excited User <mailgun@sandbox6648c4e818dc4da792aaa817f04e7185.mailgun.org>");
+            request.AddParameter("to", email);
             request.AddParameter("subject", "Email verification");
             request.AddParameter("text", body);
-            request.Method = Method.Post;
 
             var response = client.Execute(request);
 
