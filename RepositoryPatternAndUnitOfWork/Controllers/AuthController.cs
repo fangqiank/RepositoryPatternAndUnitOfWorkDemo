@@ -10,6 +10,7 @@ using RestSharp.Authenticators;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Web;
 
 namespace RepositoryPatternAndUnitOfWork.Controllers
 {
@@ -84,7 +85,8 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
                             })}";
 
                     var body = email_body.Replace("#URL#",
-                        System.Text.Encodings.Web.HtmlEncoder.Default.Encode(callback_url));
+                        /*System.Text.Encodings.Web.HtmlEncoder.Default.Encode(callback_url)*/
+                        HttpUtility.HtmlDecode(callback_url));
 
                     var result  = SendEmail(body, newUser.Email!);
 
