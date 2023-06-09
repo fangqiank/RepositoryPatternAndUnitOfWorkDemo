@@ -19,21 +19,27 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
     public class AuthController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _config;
         private readonly ApplicationDbContext _db;
         private readonly TokenValidationParameters _validationParameters;
+        private readonly ILogger<AuthController> _logger;
 
         public AuthController(
             UserManager<IdentityUser> userManager,
+            RoleManager<IdentityRole> roleManager,  
             IConfiguration config,
             ApplicationDbContext db,
-            TokenValidationParameters validationParameters
+            TokenValidationParameters validationParameters,
+            ILogger<AuthController> logger
             )
         {
             _userManager = userManager;
+            _roleManager = roleManager;
             _config = config;
             _db = db;
             _validationParameters = validationParameters;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -72,6 +78,21 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
                     //var token = await GenerateToken(newUser);
 
                     //return Ok(token);
+                    var appUserRole = await _roleManager.FindByNameAsync("AppUser");
+
+                    if (appUserRole == null) 
+                    {
+                        appUserRole = new IdentityRole("AppUser");
+                        await _roleManager.CreateAsync(appUserRole);
+
+                        Claim _userClaim = new Claim("Project.View", "yes");
+                        await _roleManager.AddClaimAsync(appUserRole, _userClaim);
+                    }
+
+                    await _userManager.AddToRoleAsync(
+                        newUser, 
+                        "AppUser");
+                    
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
 
                     var email_body = "Please confirm your email address <a href=\"#URL#\">Click Here</a>";
@@ -407,17 +428,11 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
             var secret = _config.GetSection("JwtConfig:Secret").Value;
             var key = Encoding.UTF8.GetBytes(secret!);
 
+            var claims = await GetAllClaims(user);
+
             var tokenDescriptor = new SecurityTokenDescriptor()
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim("Id", user.Id),
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Email!),
-                    new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now
-                    .ToUniversalTime().ToString())
-                }),
+                Subject = new ClaimsIdentity(claims),
 
                 Expires = DateTime.UtcNow.Add(
                     TimeSpan.Parse(_config.GetSection("JwtConfig:ExpiryTime").Value!)),
@@ -452,6 +467,42 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
                 RefreshToken = refreshToken.Token,
                 Result = true
             };
+        }
+
+        private async Task<List<Claim>> GetAllClaims(IdentityUser user)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim("Id", user.Id),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Email!),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email!),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now
+                .ToUniversalTime().ToString())
+            };
+
+            var userClaims = await _userManager.GetClaimsAsync(user);
+            claims.AddRange(userClaims);
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            foreach (var userRole in userRoles)
+            {
+                var role = await _roleManager.FindByNameAsync(userRole);
+
+                if(role != null)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, userRole.ToString()));
+
+                    var roleClaims = await _roleManager.GetClaimsAsync(role);
+                    foreach (var claim in roleClaims)
+                    {
+                        claims.Add(claim);
+                    }
+                }
+            }
+
+            return claims;
         }
 
         private string RandomStringGeneration(int length)

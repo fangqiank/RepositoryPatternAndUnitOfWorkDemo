@@ -38,7 +38,11 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
 
         [HttpGet]
         [Route("GetAll")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(
+            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, 
+            //Roles = "AppUser",
+            Policy = "AccessDbPolicy"
+            )]
         public async Task<IActionResult> GetALL()
         {
             var users = await _unitOfWork.Users.GetAllAsync();
