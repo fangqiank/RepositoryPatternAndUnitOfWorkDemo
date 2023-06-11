@@ -1,3 +1,5 @@
+using Hangfire;
+using Hangfire.Storage.SQLite;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -6,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RepositoryPatternAndUnitOfWork.Core.IConfiguration;
 using RepositoryPatternAndUnitOfWork.Data;
+using RepositoryPatternAndUnitOfWork.Services.Background;
 using RepositoryPatternAndUnitOfWork.Services.Health;
 using System.Text;
 
@@ -13,6 +16,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(
     builder.Configuration.GetConnectionString("Defaults")));
+
+builder.Services.AddHangfire(config => config.UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSQLiteStorage(builder.Configuration.GetConnectionString("Defaults")));
+
+builder.Services.AddHangfireServer();
 
 //builder.Services.AddEntityFrameworkNpgsql()
 //    .AddDbContext<ApplicationDbContext>(option =>
@@ -57,6 +66,8 @@ builder.Services.AddSwaggerGen(
         //c.OperationFilter<AuthResponsesOperationFilter>();
         
     });
+
+builder.Services.AddTransient<IServiceManagement, ServiceManagement>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -113,6 +124,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseHangfireDashboard();
+app.MapHangfireDashboard();
+
+RecurringJob.AddOrUpdate<IServiceManagement>(x => x.SyncData(), "0 * * ? * *");
 
 app.MapHealthChecks("/health", new HealthCheckOptions
 {

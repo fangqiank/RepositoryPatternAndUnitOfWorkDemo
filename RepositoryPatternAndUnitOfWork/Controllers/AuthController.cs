@@ -371,7 +371,7 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
                     Result = false,
                     Errors = new List<string>
                         {
-                            "Server Error"
+                            ex.Message
                         }
                 };
             }

@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Hangfire;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RepositoryPatternAndUnitOfWork.Core.IConfiguration;
 using RepositoryPatternAndUnitOfWork.Models;
+using RepositoryPatternAndUnitOfWork.Services.Background;
 
 namespace RepositoryPatternAndUnitOfWork.Controllers
 {
@@ -46,6 +48,9 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
         public async Task<IActionResult> GetALL()
         {
             var users = await _unitOfWork.Users.GetAllAsync();
+
+            //var jobId = BackgroundJob.Enqueue<IServiceManagement>(x => x., "0 * * ? * *");
+            RecurringJob.AddOrUpdate<IServiceManagement>(x => x.UpdateDatabase(), Cron.Minutely);
 
             return Ok(users);
         }
