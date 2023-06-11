@@ -1,9 +1,12 @@
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RepositoryPatternAndUnitOfWork.Core.IConfiguration;
 using RepositoryPatternAndUnitOfWork.Data;
+using RepositoryPatternAndUnitOfWork.Services.Health;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,10 +14,22 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(
     builder.Configuration.GetConnectionString("Defaults")));
 
+//builder.Services.AddEntityFrameworkNpgsql()
+//    .AddDbContext<ApplicationDbContext>(option =>
+//    {
+//        option.UseNpgsql(builder.Configuration.GetConnectionString("Defaults"));
+//    });
+
 //builder.Services.AddCors(options =>
 //{
 //    options.AddPolicy("AllowOrigin", builder => builder.AllowAnyOrigin().AllowAnyMethod());
 //});
+
+builder.Services.AddHealthChecks()
+    .AddCheck<ApiHealthCheck>("MyApiChecks", tags: new string[]
+    {
+        "MyApi"
+    } );
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -98,5 +113,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    Predicate = _ => true,
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 
 app.Run();
