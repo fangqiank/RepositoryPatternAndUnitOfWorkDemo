@@ -40,17 +40,18 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
 
         [HttpGet]
         [Route("GetAll")]
-        [Authorize(
-            AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
-            Roles = "AppUser",
-            Policy = "AccessDbPolicy"
-            )]
+        [AllowAnonymous]
+        //[Authorize(
+        //    AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
+        //    Roles = "AppUser",
+        //    Policy = "AccessDbPolicy"
+        //    )]
         public async Task<IActionResult> GetALL()
         {
             var users = await _unitOfWork.Users.GetAllAsync();
 
             //var jobId = BackgroundJob.Enqueue<IServiceManagement>(x => x., "0 * * ? * *");
-            RecurringJob.AddOrUpdate<IServiceManagement>(x => x.UpdateDatabase(), Cron.Minutely);
+            //RecurringJob.AddOrUpdate<IServiceManagement>(x => x.UpdateDatabase(), Cron.Minutely);
 
             return Ok(users);
         }

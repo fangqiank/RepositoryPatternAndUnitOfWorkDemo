@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RepositoryPatternAndUnitOfW
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiCorrectlation", "ApiCorrectlation\ApiCorrectlation.csproj", "{83CD388D-6B7E-4B9F-ADFE-88AF3E9E8CC9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenAiApp", "OpenAiApp\OpenAiApp.csproj", "{5AB894EF-144F-45E9-A6C2-F7ED373FBFAD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAiApp", "OpenAiApp\OpenAiApp.csproj", "{5AB894EF-144F-45E9-A6C2-F7ED373FBFAD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing", "Testing\Testing.csproj", "{63802B45-9133-46D4-8316-5B69E9C388EC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{5AB894EF-144F-45E9-A6C2-F7ED373FBFAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5AB894EF-144F-45E9-A6C2-F7ED373FBFAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5AB894EF-144F-45E9-A6C2-F7ED373FBFAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63802B45-9133-46D4-8316-5B69E9C388EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63802B45-9133-46D4-8316-5B69E9C388EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63802B45-9133-46D4-8316-5B69E9C388EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63802B45-9133-46D4-8316-5B69E9C388EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
