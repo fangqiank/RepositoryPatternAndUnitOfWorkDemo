@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -5,6 +6,7 @@ using Moq;
 using RepositoryPatternAndUnitOfWork.Controllers;
 using RepositoryPatternAndUnitOfWork.Core.IConfiguration;
 using RepositoryPatternAndUnitOfWork.Data;
+using RepositoryPatternAndUnitOfWork.Dtos;
 using RepositoryPatternAndUnitOfWork.Models;
 
 namespace Testing
@@ -12,8 +14,52 @@ namespace Testing
 
     public class RepositortPatternTests
     {
-        
-            [Fact]
+
+        private readonly AuthController _authController;
+        private readonly Mock<Microsoft.AspNetCore.Identity.UserManager<IdentityUser>> _userManagerMock;
+
+        public RepositortPatternTests()
+        {
+            _userManagerMock = new Mock<Microsoft.AspNetCore.Identity.UserManager<IdentityUser>>();
+            _authController = new AuthController(
+                _userManagerMock.Object, 
+                null, 
+                null, 
+                null, 
+                null, 
+                null);
+        }
+
+        [Fact]
+        public async Task Login_ValidCredentials_ReturnsOkResultWithToken()
+        {
+            // Arrange
+            var userLoginDto = new UserLoginDto
+            {
+                Email = "test@example.com",
+                Password = "password"
+            };
+
+            var existedUser = new IdentityUser { Email = userLoginDto.Email, EmailConfirmed = true };
+
+            _userManagerMock.Setup(x => x.FindByEmailAsync(userLoginDto.Email))
+                .ReturnsAsync(existedUser);
+
+            _userManagerMock.Setup(x => x.CheckPasswordAsync(existedUser, userLoginDto.Password))
+                .ReturnsAsync(true);
+
+            var jwtToken = "your-generated-jwt-token";
+            //_authController.GenerateToken = (user) => Task.FromResult(jwtToken);
+
+            // Act
+            var result = await _authController.Login(userLoginDto);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.Equal(jwtToken, okResult.Value);
+        }
+
+        [Fact]
             public async Task GetALL_Returns_Users()
             {
                 // Arrange
