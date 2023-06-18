@@ -6,6 +6,7 @@ using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RepositoryPatternAndUnitOfWork.Core.IConfiguration;
@@ -35,6 +36,18 @@ builder.Services.AddHangfireServer();
 //{
 //    options.AddPolicy("AllowOrigin", builder => builder.AllowAnyOrigin().AllowAnyMethod());
 //});
+
+builder.Services.AddRateLimiter(config =>
+{
+    config.AddFixedWindowLimiter("FiexedWindowPolicy", opt =>
+    {
+        opt.Window = TimeSpan.FromSeconds(5);
+        opt.PermitLimit = 5;
+        opt.QueueLimit = 10;
+        opt.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
+    })
+    .RejectionStatusCode = 429; //too many requests
+});
 
 builder.Services.AddHealthChecks()
     .AddCheck<ApiHealthCheck>("MyApiChecks", tags: new string[]
@@ -137,6 +150,8 @@ if(app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseRateLimiter();
 
 app.UseHttpsRedirection();
 

@@ -1,11 +1,9 @@
-﻿using Asp.Versioning;
-using Hangfire;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using RepositoryPatternAndUnitOfWork.Core.IConfiguration;
 using RepositoryPatternAndUnitOfWork.Models;
-using RepositoryPatternAndUnitOfWork.Services.Background;
 
 namespace RepositoryPatternAndUnitOfWork.Controllers
 {
@@ -42,6 +40,7 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
         [HttpGet]
         [Route("GetAll")]
         [AllowAnonymous]
+        [EnableRateLimiting("FiexedWindowPolicy")]
         //[Authorize(
         //    AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
         //    Roles = "AppUser",
