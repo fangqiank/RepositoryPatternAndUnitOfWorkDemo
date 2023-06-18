@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -421,7 +422,8 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
             return response.IsSuccessful;
         }
 
-        private async Task<AuthResult> GenerateToken(IdentityUser user)
+        [NonAction]
+        public async Task<AuthResult> GenerateToken(IdentityUser user)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
 

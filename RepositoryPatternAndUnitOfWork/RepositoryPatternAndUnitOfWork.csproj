@@ -5,9 +5,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>85d0e3c3-712c-4450-a90d-b9710f72cb87</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
     <ItemGroup>
+	    <PackageReference Include="Asp.Versioning.Mvc" Version="7.0.0" />
+	    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="7.0.0" />
 	    <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="6.0.5" />
 	    <PackageReference Include="Hangfire" Version="1.8.2" />
 	    <PackageReference Include="Hangfire.Core" Version="1.8.2" />
@@ -26,6 +29,7 @@
 	      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	    </PackageReference>
 	    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.31.0" />
+	    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.18.1" />
 	    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4" />
 	    <PackageReference Include="RestSharp" Version="110.2.0" />
 	    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
