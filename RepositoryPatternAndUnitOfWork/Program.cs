@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RepositoryPatternAndUnitOfWork.Core.IConfiguration;
 using RepositoryPatternAndUnitOfWork.Data;
+using RepositoryPatternAndUnitOfWork.Filters;
 using RepositoryPatternAndUnitOfWork.Services.Background;
 using RepositoryPatternAndUnitOfWork.Services.Health;
 using System.Text;
@@ -55,7 +56,11 @@ builder.Services.AddHealthChecks()
         "MyApi"
     } );
 
-builder.Services.AddControllers();
+//builder.Services.AddControllers(opt =>
+//{
+//    opt.Filters.Add(new MyFilter());
+//});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(
     c =>

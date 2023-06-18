@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using RepositoryPatternAndUnitOfWork.Core.IConfiguration;
+using RepositoryPatternAndUnitOfWork.Filters;
 using RepositoryPatternAndUnitOfWork.Models;
 
 namespace RepositoryPatternAndUnitOfWork.Controllers
@@ -38,6 +39,7 @@ namespace RepositoryPatternAndUnitOfWork.Controllers
         }
 
         [HttpGet]
+        [MyAsyncActionFilter("GetAllUsersAsync")]
         [Route("GetAll")]
         [AllowAnonymous]
         [EnableRateLimiting("FiexedWindowPolicy")]
