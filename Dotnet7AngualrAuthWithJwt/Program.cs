@@ -20,7 +20,29 @@ builder.Services.AddDbContext<AppDbContext>(op =>
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "App",
+        Version = "v1"
+    });
+
+    c.AddSecurityDefinition("Bearer",
+        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+        {
+            Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+            //Scheme = JwtBearerDefaults.AuthenticationScheme.ToLowerInvariant(),
+            Scheme = "Bearer",
+            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+            Name = "Authorization",
+            BearerFormat = "JWT",
+            Description = "JWT Autherization header using Bearer scheme"
+        });
+});
+
+
+//c.OperationFilter<AuthResponsesOperationFilter>(););
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
@@ -60,6 +82,11 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
+builder.Services.AddCors(op => op.AddPolicy("client", policy =>
+{
+    policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+}));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -68,6 +95,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("client");
 
 app.UseHttpsRedirection();
 
