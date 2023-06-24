@@ -11,7 +11,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAiApp", "OpenAiApp\Open
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Testing", "Testing\Testing.csproj", "{63802B45-9133-46D4-8316-5B69E9C388EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dotnet7AngualrAuthWithJwt", "Dotnet7AngualrAuthWithJwt\Dotnet7AngualrAuthWithJwt.csproj", "{8A16A738-093F-4F73-B90D-8F914C7BC988}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dotnet7AngualrAuthWithJwt", "Dotnet7AngualrAuthWithJwt\Dotnet7AngualrAuthWithJwt.csproj", "{8A16A738-093F-4F73-B90D-8F914C7BC988}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorCRUDWebApi.Server", "BlazorCRUDWebApi\Server\BlazorCRUDWebApi.Server.csproj", "{66A4ECF0-9F3E-44C9-B139-086547F61FA0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorCRUDWebApi.Client", "BlazorCRUDWebApi\Client\BlazorCRUDWebApi.Client.csproj", "{318F8F05-384A-4B90-B0F0-ED6B171580DF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorCRUDWebApi.Shared", "BlazorCRUDWebApi\Shared\BlazorCRUDWebApi.Shared.csproj", "{481B34A5-B3D4-4189-8375-845B6C60FD7D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BlazorCRUDWebApi", "BlazorCRUDWebApi", "{474DE2FA-28D9-4A67-98C4-93BE2E3E276A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,9 +47,26 @@ Global
 		{8A16A738-093F-4F73-B90D-8F914C7BC988}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A16A738-093F-4F73-B90D-8F914C7BC988}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A16A738-093F-4F73-B90D-8F914C7BC988}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66A4ECF0-9F3E-44C9-B139-086547F61FA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66A4ECF0-9F3E-44C9-B139-086547F61FA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66A4ECF0-9F3E-44C9-B139-086547F61FA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66A4ECF0-9F3E-44C9-B139-086547F61FA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{318F8F05-384A-4B90-B0F0-ED6B171580DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{318F8F05-384A-4B90-B0F0-ED6B171580DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{318F8F05-384A-4B90-B0F0-ED6B171580DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{318F8F05-384A-4B90-B0F0-ED6B171580DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{481B34A5-B3D4-4189-8375-845B6C60FD7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{481B34A5-B3D4-4189-8375-845B6C60FD7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{481B34A5-B3D4-4189-8375-845B6C60FD7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{481B34A5-B3D4-4189-8375-845B6C60FD7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{66A4ECF0-9F3E-44C9-B139-086547F61FA0} = {474DE2FA-28D9-4A67-98C4-93BE2E3E276A}
+		{318F8F05-384A-4B90-B0F0-ED6B171580DF} = {474DE2FA-28D9-4A67-98C4-93BE2E3E276A}
+		{481B34A5-B3D4-4189-8375-845B6C60FD7D} = {474DE2FA-28D9-4A67-98C4-93BE2E3E276A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9EBEB5D7-CFDF-4F99-B087-2F2E7C84327B}
