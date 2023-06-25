@@ -1,24 +1,55 @@
 ﻿@page "/driver"
-@inject HttpClient _client
+@inject IDriverService _driverService
 
 <h3>Drivers</h3>
 
+<a href='@($"details")' class="btn btn-primary active my-2" role="button" aria-pressed="true">Add New Driver</a>
+
+
 <table class="table table-striped">
     <thead>
-        <tr scope="col">#</tr>
-        <tr scope="col">Name</tr>
-        <tr scope="col">Racing Number</tr>
-        <tr scope="col">Team</tr>
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Racing Number</th>
+            <th>Team</th>
+            <th>Manage</th>
+        </tr>  
     </thead>
 
     <tbody>
-        @*@foreach(var driver in drivers)
+        @foreach(var driver in Drivers)
         {
-            
-        }*@
+            <tr>
+                <td>@driver.Id</td>
+                <td>@driver.Name</td>
+                <td>@driver.RacingNb</td>
+                <td>@driver.Team</td>
+                <td>
+                    <a 
+                       href="@($"details/{driver.Id}")"
+                       class="btn btn-outline-info"
+                       role="button"
+                       aria-pressed="true">
+                        Edit
+                    </a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
 
 @code {
+    public IEnumerable<BlazorCRUDWebApi.Shared.Models.Driver> Drivers { get; set; } = 
+        new List<BlazorCRUDWebApi.Shared.Models.Driver>();
 
+    protected async override Task OnInitializedAsync()
+    {
+        var apiDrivers = await _driverService.All();
+
+        if (apiDrivers != null && apiDrivers.Any())
+        {
+            Drivers = apiDrivers;
+        }
+    }
 }

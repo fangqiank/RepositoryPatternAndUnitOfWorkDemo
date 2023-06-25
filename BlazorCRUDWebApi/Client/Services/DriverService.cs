@@ -29,8 +29,8 @@ namespace BlazorCRUDWebApi.Client.Services
             }
             catch (Exception ex)
             {
-                await Console.Out.WriteLineAsync($"Error: {ex.Message}");
-                throw;
+                Console.WriteLine($"Error: {ex.Message}");
+                throw ex;
             }
         }
 
@@ -64,8 +64,8 @@ namespace BlazorCRUDWebApi.Client.Services
             }
             catch (Exception ex)
             {
-                await Console.Out.WriteLineAsync($"Error: {ex.Message}");
-                throw;
+                Console.WriteLine($"Error: {ex.Message}");
+                throw ex;
             }
         }
 
@@ -101,8 +101,8 @@ namespace BlazorCRUDWebApi.Client.Services
             }
             catch (Exception ex)
             {
-                await Console.Out.WriteLineAsync($"Error: {ex.Message}");
-                throw;
+                Console.WriteLine($"Error: {ex.Message}");
+                throw ex;
             }
         }
 
@@ -122,8 +122,8 @@ namespace BlazorCRUDWebApi.Client.Services
             }
             catch (Exception ex)
             {
-                await Console.Out.WriteLineAsync($"Error: {ex.Message}");
-                throw;
+                Console.WriteLine($"Error: {ex.Message}");
+                throw ex;
             }
         }
     }

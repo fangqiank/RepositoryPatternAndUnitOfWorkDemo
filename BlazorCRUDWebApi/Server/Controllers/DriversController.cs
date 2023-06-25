@@ -17,7 +17,6 @@ namespace BlazorCRUDWebApi.Server.Controllers
         }
 
         [HttpGet]
-        [Route("GetDrivers")]
         public async Task<ActionResult<List<Driver>>> GetDrivers()
         {
             var drivers = await _db.Drivers.ToListAsync();
@@ -26,7 +25,6 @@ namespace BlazorCRUDWebApi.Server.Controllers
         }
 
         [HttpGet("{id}")]
-        [Route("GetDriver")]
         public async Task<ActionResult<Driver>> GetDriver(int id)
         {
             var driver = await _db.Drivers.FindAsync(id);
@@ -38,7 +36,6 @@ namespace BlazorCRUDWebApi.Server.Controllers
         }
 
         [HttpPost]
-        [Route("AddDriver")]
         public async Task<IActionResult> AddDriver([FromBody]Driver newDriver)
         {
             _db.Drivers.Add(newDriver); 
@@ -48,7 +45,6 @@ namespace BlazorCRUDWebApi.Server.Controllers
         }
 
         [HttpPut("{id}")]
-        [Route("UpdateDriver")]
         public async Task<IActionResult> UpdateDriver([FromBody]Driver updDriver, int id)
         {
             var driver = await _db.Drivers.FindAsync(id);
@@ -66,7 +62,6 @@ namespace BlazorCRUDWebApi.Server.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Route("RemoveDriver")]
         public async Task<IActionResult> RemoveDriver(int id)
         {
             var driver = await _db.Drivers.FindAsync(id);

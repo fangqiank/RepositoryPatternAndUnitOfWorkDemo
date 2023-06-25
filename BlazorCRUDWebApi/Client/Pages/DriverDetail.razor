@@ -1,0 +1,176 @@
+﻿@page "/details"
+@page "/details/{id}"
+@inject IDriverService _service
+@inject NavigationManager _manager
+
+@if (string.IsNullOrEmpty(Id))
+{
+    <PageTitle>Add new driver</PageTitle>
+    <h3>Add new driver</h3>
+}
+else
+{
+    <PageTitle>Manage Driver</PageTitle>
+    <h1>Manage Driver</h1>
+}
+
+
+<div class="row">
+    <EditForm 
+        Model="@driver"
+        OnValidSubmit="@HandleSubmit"
+        OnInvalidSubmit="@HandleFailed"
+    >
+        <div class="form-group">
+            <label 
+                for="name" 
+                class="col-md-3"
+            >
+                Name
+            </label>
+            <InputText
+                class="col-md-8 form-control"
+                @bind-Value="@driver.Name"
+                id="name" 
+                aria-describedby="nameHelp" 
+                placeholder="Name..."
+            />
+        </div>
+
+        <div class="form-group">
+            <label 
+                for="racingnb" 
+                class="col-md-3"
+            >
+                Racing Number
+            </label>
+            <InputText
+                class="col-md-8 form-control"
+                @bind-Value="@driver.RacingNb"
+                id="racingnb"
+                aria-describedby="rcNumberHelp"
+                placeholder="Racing number ..."
+            />
+        </div>
+
+        <div class="form-group">
+            <label 
+                for="team" 
+                class="col-md-3"
+            >
+                Team
+            </label>
+            <InputText 
+                class="col-md-8 form-control"
+                @bind-Value="@driver.Team"
+                id="team"
+                aria-describedby="teamHelp"
+                placeholder="Team ..." />
+        </div>
+        <button 
+            type="submit" 
+            class="btn btn-success my-2"
+        >
+            Save
+        </button>
+
+        <a 
+            @onclick="GoBack" 
+            class="btn btn-secondary active my-2" 
+            role="button" 
+            aria-pressed="true"
+        >
+            Back
+        </a>
+
+        @if (!string.IsNullOrEmpty(Id))
+        {
+            <a @onclick="DeleteDriver"
+               class="btn btn-danger active"
+               role="button"
+               aria-pressed="true">
+                Delete
+            </a>
+        }
+    </EditForm>
+</div>
+
+
+@code {
+    protected string Message = string.Empty;
+
+    protected BlazorCRUDWebApi.Shared.Models.Driver driver { get; set; } = new();
+
+    [Parameter]
+    public string Id { get; set; } = string.Empty;
+
+    protected async override Task OnInitializedAsync()
+    {
+        if(string.IsNullOrEmpty(Id))
+        {
+            //add new driver
+        }
+        else
+        {
+            //update driver
+            var driverId = Convert.ToInt32(Id);
+
+            var apiDriver = await _service.GetDriver(driverId);
+            if(apiDriver != null)
+            {
+                driver = apiDriver;  
+            }
+
+        }
+    }
+
+    protected void HandleFailed()
+    {
+        Message = "Something went wrong and form not submitted";
+    }
+
+    protected void GoBack()
+    {
+        _manager.NavigateTo("/drivers");
+    }
+
+    protected async Task DeleteDriver()
+    {
+        if (!string.IsNullOrEmpty(Id))
+        {
+            var driverId = Convert.ToInt32(Id);
+
+            var result = await _service.Delete(driverId);
+
+            if (result)
+                _manager.NavigateTo("/driver");
+            else
+                Message = "Something went wrong, not added";
+
+        }
+    }
+
+    protected async void HandleSubmit()
+    {
+        if (string.IsNullOrEmpty(Id))
+        {
+            //add driver   
+            var resilt = await _service.AddDriver(driver);
+
+            if(resilt != null)
+                _manager.NavigateTo("/driver");
+            else
+                Message = "Something went wrong";
+        }
+        else
+        {
+            //update driver
+            var result = await _service.Update(driver);
+
+            if (result)
+                _manager.NavigateTo("/driver");
+            else
+                Message = "Something went wrong, not updated";
+        }
+    }
+}

@@ -10,6 +10,10 @@ builder.Services.AddEntityFrameworkNpgsql()
         option.UseNpgsql(builder.Configuration.GetConnectionString("Defaults"));
     });
 
+builder.Services.AddCors(op => op.AddPolicy("client", policy =>
+{
+    policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+}));
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
@@ -35,6 +39,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseCors("client");
 
 app.MapRazorPages();
 app.MapControllers();
