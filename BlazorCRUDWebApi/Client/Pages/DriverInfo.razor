@@ -1,0 +1,55 @@
+﻿﻿
+@page "/driver-info"
+@page "/drivers/{id:int}"
+@inject IDriverService _service
+
+@if (Id == null)
+{
+    <PageTitle>Create a new driver</PageTitle>
+    <h3>Create a new driver</h3>
+}
+else
+{
+    <PageTitle>Edit @driver.Name</PageTitle>
+    <h3>Edit @driver.Name</h3>
+}
+
+<h3>DriverInfo</h3>
+
+    @code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    string btnText = string.Empty;
+
+    BlazorCRUDWebApi.Shared.Models.Driver driver = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        btnText = Id == null ? "Save new driver" : "Update Driver";
+        await _service.GetAllDrivers();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id != null)
+            driver = await _service.GetSingleDriver(Convert.ToInt32(Id));
+    }
+
+    async Task HandleSubmit()
+    {
+        if (Id == null)
+        {
+            await _service.CreateDriver(driver);
+        }
+        else
+        {
+            await _service.UpdateDriver(driver);
+        }
+    }
+
+    async Task DeleteDriver()
+    {
+        await _service.Delete(driver.Id);
+    }
+}

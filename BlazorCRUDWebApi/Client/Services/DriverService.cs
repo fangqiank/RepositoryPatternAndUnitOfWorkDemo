@@ -1,4 +1,6 @@
 ﻿using BlazorCRUDWebApi.Shared.Models;
+using Microsoft.AspNetCore.Components;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 
@@ -7,10 +9,21 @@ namespace BlazorCRUDWebApi.Client.Services
     public class DriverService : IDriverService
     {
         private readonly HttpClient _client;
+        private readonly NavigationManager _manager;
 
-        public DriverService(HttpClient client)
+        public List<Driver> Drivers { get; set; } = new();
+
+        public DriverService(HttpClient client, NavigationManager manager)
         {
             _client = client;
+            _manager = manager;
+        }
+
+        public async Task SetDrivers(HttpResponseMessage result)
+        {
+            var res = await result.Content.ReadFromJsonAsync<List<Driver>>();
+            Drivers = res;
+            _manager.NavigateTo("driver");
         }
 
         public async Task<IEnumerable<Driver?>> All()
@@ -26,6 +39,22 @@ namespace BlazorCRUDWebApi.Client.Services
                     });
 
                 return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                throw ex;
+            }
+        }
+
+        public async Task GetAllDrivers()
+        {
+            try
+            {
+                var result = await _client.GetFromJsonAsync<List<Driver>>("api/drivers");
+
+                if (result != null)
+                    Drivers = result;
             }
             catch (Exception ex)
             {
@@ -69,6 +98,12 @@ namespace BlazorCRUDWebApi.Client.Services
             }
         }
 
+        public async Task CreateDriver(Driver newDriver)
+        {
+            var result = await _client.PostAsJsonAsync("api/drivers", newDriver);
+            await SetDrivers(result);
+        }
+
         public async Task<bool> Delete(int driverId)
         {
             try
@@ -106,6 +141,15 @@ namespace BlazorCRUDWebApi.Client.Services
             }
         }
 
+        public async Task<Driver> GetSingleDriver(int id)
+        {
+            var result = await _client.GetFromJsonAsync<Driver>($"api/drivers/{id}");
+            if (result != null)
+                return result;
+
+            throw new Exception("Driver not found");
+        }
+
         public async Task<bool> Update(Driver updDriver)
         {
             try
@@ -125,6 +169,12 @@ namespace BlazorCRUDWebApi.Client.Services
                 Console.WriteLine($"Error: {ex.Message}");
                 throw ex;
             }
+        }
+
+        public async Task UpdateDriver(Driver updDriver)
+        {
+            var result = await _client.PutAsJsonAsync($"api/drivers/{updDriver.Id}", updDriver);
+            await SetDrivers(result);
         }
     }
 }
