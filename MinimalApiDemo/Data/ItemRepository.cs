@@ -1,4 +1,5 @@
-﻿using MinimalApiDemo.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using MinimalApiDemo.Models;
 
 namespace MinimalApiDemo.Data
 {
@@ -24,12 +25,15 @@ namespace MinimalApiDemo.Data
         
         public void Update(Item updItem) 
         {
-            var item = GetById(updItem.Id);
+            var item = _db.Itmes
+                .AsNoTracking()
+                .FirstOrDefault(x => x.Id != updItem.Id);
 
             if(item != null)
             {
-                item.Todo = updItem.Todo;
-                item.Completed = updItem.Completed;
+                //item.Todo = updItem.Todo;
+                //item.Completed = updItem.Completed;
+                _db.Update(updItem);
 
                 _db.SaveChanges();
             }
